@@ -95,7 +95,10 @@ amptk-docker illumina \
 1 error in alignment allowed; default of 97% similarity
 
 ```{bash, engine.opts='-l'}
-amptk-docker cluster -i trimmed.demux.fq.gz -e 1.0 -o clustered   
+amptk-docker cluster \
+  -i trimmed.demux.fq.gz \
+  -e 1.0 \
+  -o clustered   
 ```
 
 ## Step 3: Filter table based on what is in negative controls
@@ -103,7 +106,12 @@ amptk-docker cluster -i trimmed.demux.fq.gz -e 1.0 -o clustered
 -d negatives will filter your reads to remove contaminants and then drop your negative controls; adjust names as needed
 
 ```{bash, engine.opts='-l'}
-amptk-docker filter -i clustered.otu_table.txt -f clustered.cluster.otus.fa -d negatives F96-NegPCR, F107Extraction-Control -p 0.005 # Set p-value threshold
+amptk-docker filter \
+  -i clustered.otu_table.txt \
+  -f clustered.cluster.otus.fa \
+  -d yourPCRnegative yourDNAEXTRnegative \
+  -p 0.005 # Set p-value threshold for index bleed
+#list of negatives in -d option should be separated by spaces
 ```
 
 ## Step 4: Assign taxonomy (used ITS database)
@@ -111,7 +119,15 @@ amptk-docker filter -i clustered.otu_table.txt -f clustered.cluster.otus.fa -d n
 Change the -o STUDY to your project name eg Westside
 
 ```{bash, engine.opts='-l'}
-amptk-docker taxonomy -f clustered.cluster.otus.fa -i clustered.otu_table.txt -m trimmed.mapping_file.txt -d ITS -o STUDY
+amptk taxonomy  \
+    -f clustered.filtered.otus.fa \
+    -i clustered.final.txt \
+    -m trimmed.mapping_file.txt \
+    -d ITS \
+    -o STUDY
+#If you did not filter out any negatives with amptk filter, replace with opts below
+  #-f clustered.cluster.otus.fa \
+  #-i clustered.otu_table.txt \
 ```
 
 ## Step 5: Reorganize files for clarity;
